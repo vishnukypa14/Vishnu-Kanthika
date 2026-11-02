@@ -149,6 +149,19 @@ footer p{color:#5a3022!important}
 #hero .arch{margin-bottom:46px}#hero .names{margin-top:6px}
 .frame .big{font-weight:700;color:#7a1020;font-size:16px;margin:2px 0 8px}
 .frame .row .btn{padding:10px 18px}
+
+/* photo slider */
+.sl{position:relative;width:min(78vw,300px);margin:0 auto}
+.sl-frame{position:relative;overflow:hidden;aspect-ratio:3/4.2;padding:6px;border-radius:999px 999px 14px 14px;background:linear-gradient(160deg,#b8862b,#f3e2ae,#b8862b);box-shadow:0 16px 30px -16px rgba(122,16,16,.6);touch-action:pan-y}
+.sl-track{display:flex;height:100%;transition:transform .6s cubic-bezier(.6,0,.2,1)}
+.sl-slide{flex:0 0 100%;min-width:0;height:100%}
+.sl-slide img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px 999px 9px 9px;cursor:zoom-in}
+.sl-ctrl{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px}
+.sl-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:28px;line-height:1;display:grid;place-items:center;letter-spacing:0}
+.sl-dots{display:flex;gap:8px;align-items:center}
+.sl-dot{width:11px;height:11px;padding:0;border-radius:50%;background:#e6c878;border:1px solid #b8862b;box-shadow:none}
+.sl-dot.on{background:#7a1020;border-color:#7a1020}
+.sl-dot:hover{transform:none;box-shadow:none}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="rose" viewBox="-50 -50 100 100"><g stroke="#b8862b" stroke-width="1.2"><ellipse cx="0" cy="-22" rx="12" ry="22" fill="#fffdf6" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="12" ry="22" fill="#fffdf6" transform="rotate(72)"/><ellipse cx="0" cy="-22" rx="12" ry="22" fill="#fffdf6" transform="rotate(144)"/><ellipse cx="0" cy="-22" rx="12" ry="22" fill="#fffdf6" transform="rotate(216)"/><ellipse cx="0" cy="-22" rx="12" ry="22" fill="#fffdf6" transform="rotate(288)"/><circle r="9" fill="#e6c878"/><circle r="4" fill="#9b1b1b" stroke="none"/></g></symbol>
@@ -189,7 +202,7 @@ footer p{color:#5a3022!important}
 <h3 style="font-size:30px;font-weight:600">Wedding</h3>
 <p class="big">Friday, 20 November 2026<br>9:56 AM</p>
 <p class="muh">Muhurtham · Uttarabhadra Nakshatram, Dhanur Lagnam</p>
-<p style="margin-top:10px"><b>Matsya Amazon Resorts</b><br>S.No. 233, Narlapuram, Veldurthi,<br>Kurnool</p>
+<p style="margin-top:10px"><b>Matsya Amazon Resorts</b><br>S.No. 233, Narlapuram, Veldurthi,<br>Kurnool · <i>Lunch follows</i></p>
 <div class="row"><a class="btn" href="https://share.google/CL3wZieACEJqfAaSx" target="_blank" rel="noopener">Get directions</a><a class="btn alt" id="cal1" target="_blank" rel="noopener">Add to calendar</a></div>
 <div class="divider" style="margin:34px auto"><svg width="40" height="20"><use href="#lotus"/></svg></div>
 <h3 style="font-size:30px;font-weight:600">Reception</h3>
@@ -207,7 +220,7 @@ footer p{color:#5a3022!important}
 </section>
 
 <section class="rv"><h2 class="script gold">Our moments</h2><p class="sub">Tap a photo to see it larger</p>
-<div class="gal" id="gal"></div></section>
+<div class="sl" id="slider" role="region" aria-roledescription="carousel" aria-label="Wedding photos"><div class="sl-frame" id="slframe"><div class="sl-track" id="track"></div></div><div class="sl-ctrl"><button class="sl-btn" id="prev" type="button" aria-label="Previous photo">&#8249;</button><div class="sl-dots" id="dots"></div><button class="sl-btn" id="next" type="button" aria-label="Next photo">&#8250;</button></div></div></section>
 
 <section class="rv"><div class="frame">
 <svg class="cl tr sway"><use href="#cluster"/></svg><svg class="cl bl sway"><use href="#cluster"/></svg>
@@ -252,7 +265,29 @@ var txt='🌸 *Kypa’s Wedding Invitation* 🌸\n\nWith the blessings of God an
 // RSVP
 
 // gallery
-var gal=$('gal'),lb=$('lb');[1,2,3,4].map(function(i){return PHOTOS[i]}).forEach(function(p){var b=document.createElement('button');b.className='g'+(p.w?' w':'');b.type='button';b.setAttribute('aria-label','Open photo');b.innerHTML='<img alt="'+p.alt+'">';b.firstChild.src=p.src;b.onclick=function(){lb.firstChild.src=p.src;lb.firstChild.alt=p.alt;lb.classList.add('on')};gal.appendChild(b)});
+var lb=$('lb'),track=$('track'),dots=$('dots'),cur=0,x0=null;
+PHOTOS.slice(1,5).forEach(function(p,i){
+  var s=document.createElement('div');s.className='sl-slide';
+  s.innerHTML='<img alt="'+p.alt+'">';
+  var img=s.firstChild;img.src=p.src;
+  img.onclick=function(){lb.firstChild.src=p.src;lb.firstChild.alt=p.alt;lb.classList.add('on')};
+  track.appendChild(s);
+  var d=document.createElement('button');d.type='button';d.className='sl-dot';d.setAttribute('aria-label','Show photo '+(i+1));
+  d.onclick=function(){go(i)};dots.appendChild(d);
+});
+var N=track.children.length;
+function go(i){
+  cur=(i+N)%N;
+  track.style.transform='translateX('+(-cur*100)+'%)';
+  [].forEach.call(dots.children,function(d,j){d.classList.toggle('on',j===cur);d.setAttribute('aria-current',j===cur?'true':'false')});
+}
+$('prev').onclick=function(){go(cur-1)};
+$('next').onclick=function(){go(cur+1)};
+var fr=$('slframe');
+fr.addEventListener('touchstart',function(e){x0=e.touches[0].clientX},{passive:true});
+fr.addEventListener('touchend',function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)go(cur+(dx<0?1:-1));x0=null});
+document.addEventListener('keydown',function(e){if(lb.classList.contains('on'))return;if(e.key==='ArrowLeft')go(cur-1);if(e.key==='ArrowRight')go(cur+1)});
+go(0);
 lb.onclick=function(){lb.classList.remove('on')};document.addEventListener('keydown',function(e){if(e.key=='Escape')lb.classList.remove('on')});
 // reveal
 var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.12});
